@@ -167,7 +167,14 @@ class RequestBodyValidator(object):
                         raise ExtraParameterProblem(formdata_errors, [])
 
                 if data:
-                    props = self.schema.get("properties", {})
+                    if self.schema.get("oneOf"):
+                        props = {}
+                        for schema in self.schema.get("oneOf"):
+                            d = schema.get("properties", {})
+                            for k, v in d.items():
+                                props[k] = v
+                    else:
+                        props = self.schema.get("properties", {})
                     errs = []
                     for k, param_defn in props.items():
                         if k in data:
